@@ -735,6 +735,9 @@ setInterval("createtime()",250);
   <script src="[object Object]"></script>
   
   <script type="text/javascript">
+  window.AV = require('leancloud-storage');
+  import Valine from 'valine';
+  const Valine = require('valine');
     var GUEST = ['nick','mail','link'];
     var guest = 'nick,mail,link';
     guest = guest.split(',').filter(function (item) {
