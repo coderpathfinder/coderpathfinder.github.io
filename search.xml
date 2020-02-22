@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Rust初探</title>
+    <url>/2020/02/22/Rust%E5%88%9D%E6%8E%A2/</url>
+    <content><![CDATA[<h1 id="Rust初探"><a href="#Rust初探" class="headerlink" title="Rust初探"></a>Rust初探</h1><h2 id="初识Rust"><a href="#初识Rust" class="headerlink" title="初识Rust"></a>初识Rust</h2><p>Rust是由Mozilla推出的编程语言，最初听说Rust编程语言使因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？</p>
+<p>在Rust的官网首页上，就描述了Rust的三个特点：高性能，可靠，高效率。而其他资料关于Rust的描述为：无GC，内存安全，线程安全，混合多种编程范式，强类型的静态的系统级语言。从其描述上看，的确有要替代C++的语言”该有的样子“。</p>
+<p>系统级编程时相对于应用级编程而言，一般来说，系统级编程意味着更接近底层，为上层的应用软件提供支持，系统级编程语言一般具有以下特点：</p>
+<ol>
+<li>可以在资源非常受限的环境下执行；</li>
+<li>运行时开销很小，非常高效；</li>
+<li>很小的运行库，甚至于没有；</li>
+<li>可以允许直接的内存操作。</li>
+</ol>
+<p>需要注意的是，这里的系统并不一定指的就是操作系统。近些年越来越多的出现的被称为“系统级”的编程语言(如：Go，Dlang，Nim等)，但是主流的系统级编程语言还是C和C++，而Rust显然定位与他们相同，都是编译型语言，无需runtime，没有GC等等，但是Rust于C/C++最大的不同是Rust虽然没有GC但是确是内存安全的，这可以说是Rust的最大特点。另外，在很多谈论Rust的时候都会谈到其一个重要的设计哲学：<strong>零成本抽象</strong>，这表明Rust除了安全，还追求高效率开发和性能。我们知道，相比于C/C++等偏底层的语言，一些较为”上层“的编程语言(如：Python，Ruby等)的开发效率更高，因为这些语言具有一定的抽象表达能力，但是这些语言的抽象表达能力大多都是靠牺牲性能换来的，而Rust的设计哲学之一就是零成本抽象，在拥有不逊于C++的性能的同时拥有提高开发效率和实用性的抽象能力。</p>
+<p>关于安装配置环境和其他大多数语言没什么不同，安装一些列Rust的工具链包括Rust的编译器rustc，包管理器cargo，其他一系列的工具，还有管理更新这些工具的rustup，rustc和go一样，不仅能指出错误，还能给出改正的建议，这对新手非常友好，还有着很好的交叉编译能力。需要注意的是，如果是在Windows环境下安装配置Rust开发环境，还需要下载VS，安装Visual C++工具链。并且由于网络的关系，rust的工具链可能会下载失败，需要配置镜像或者多试几次。</p>
+<h2 id="你好，世界"><a href="#你好，世界" class="headerlink" title="你好，世界"></a>你好，世界</h2><p>我们没有理由不遵循传统，从最简单的hello world开始，一开始就有两种方式，通过<code>cargo new hello_world</code>命令让cargo创建一个新项目，里面就包含有一个main.rs文件，Rust的源代码文件以<code>.rs</code>结尾，并且必需是UTF-8编码，创建了一个新的项目之后进入项目根目录下，可以用命令<code>cargo build hello_world</code>编译整个项目，也可以使用命令<code>cargo run hello_world</code>直接运行整个项目，在编译或者运行之前还可以用<code>cargo check</code>来检查项目是否可以编译，这比<code>cargo build</code>快的多。cargo作为包管理工具还可以帮我们下载依赖，当然一个简单的hello word并不需要依赖什么，所以这样做有些费事，那么就使用最原始的方式用编译器编译，然后运行。</p>
+<p>新建一个名为<code>hello.rs</code>的文件，编写代码：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello World!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>保存退出，在命令行中进入当前路径，使用命令<code>rustc hello.rs</code>编译的到一个同名的可执行文件，运行就可以在控制台上看到打印的<code>Hello Wolrd!</code>，到这里第一个程序就完成了。</p>
+<h2 id="标准输出"><a href="#标准输出" class="headerlink" title="标准输出"></a>标准输出</h2><p>在上面的程序中<code>println!</code>是一个宏，并不是一个函数，和C语言的<code>printf</code>函数作用类似。Rust用宏来做输出的好处是在编译时就可以对参数的个数，格式做检查，以便提早发现错误，而函数只能在运行时发现出错。这面一段代码是输出宏的一些用法：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello, world!"</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"1,2,&#123;&#125;"</span>, <span class="number">3</span>); <span class="comment">//普通用法</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:o&#125;"</span>, <span class="number">16</span>); <span class="comment">//八进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:X&#125;"</span>, <span class="number">16</span>); <span class="comment">//十六进制，x大小写都行</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:b&#125;"</span>, <span class="number">8</span>); <span class="comment">//二进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:p&#125;"</span>, &amp;<span class="number">0</span>); <span class="comment">//指针</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:e&#125;"</span>, <span class="number">10000.3</span>); <span class="comment">//科学计数,e大小写都行</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, <span class="string">"test"</span>); <span class="comment">//打印debug</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:#?&#125;"</span>, (<span class="string">"test1"</span>, <span class="string">"test2"</span>)); <span class="comment">//换行打印debug</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"a=&#123;a&#125;,b=&#123;b&#125;"</span>, b = <span class="number">1</span>, a = <span class="number">2</span>); <span class="comment">//命名参数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码的运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Hello, world!</span><br><span class="line">1,2,3</span><br><span class="line">20</span><br><span class="line">10</span><br><span class="line">1000</span><br><span class="line">0x4760c8</span><br><span class="line">1.00003e4</span><br><span class="line">&quot;test&quot;</span><br><span class="line">(</span><br><span class="line">    &quot;test1&quot;,</span><br><span class="line">    &quot;test2&quot;,</span><br><span class="line">)</span><br><span class="line">a&#x3D;2,b&#x3D;1</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Rust官网地址：<a href="https://www.rust-lang.org/" target="_blank" rel="noopener">https://www.rust-lang.org/</a></p>
+<p>Rust标准库文档地址： <a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">https://doc.rust-lang.org/std/</a></p>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+</search>
