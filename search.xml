@@ -1,6 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Rust变量与基本类型</title>
+    <url>/2020/02/23/Rust%E5%8F%98%E9%87%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/</url>
+    <content><![CDATA[<h1 id="Rust之变量与基本类型"><a href="#Rust之变量与基本类型" class="headerlink" title="Rust之变量与基本类型"></a>Rust之变量与基本类型</h1><h2 id="Rust基本数据类型"><a href="#Rust基本数据类型" class="headerlink" title="Rust基本数据类型"></a>Rust基本数据类型</h2><h3 id="布尔类型"><a href="#布尔类型" class="headerlink" title="布尔类型"></a>布尔类型</h3><p>布尔类型(bool)是Rust内置的数据类型。bool类型只有两个值：true和false。bool类型可以被转化为数字，但是数字不能转化为bool类型。</p>
+<h3 id="字符类型"><a href="#字符类型" class="headerlink" title="字符类型"></a>字符类型</h3><p>在Rust中，用单引号定义字符类型(char)，用来表示Unicode标量值，而<strong>不是ASCII码值</strong>，<strong>占4个字节</strong>。也可以指字面量为ASCII码，这样只占一个字节，节省空间。</p>
+<h3 id="数字类型"><a href="#数字类型" class="headerlink" title="数字类型"></a>数字类型</h3><p>Rust的数字类型分为三类：取值范围固定的类型，动态取值范围的类型，浮点数类型。</p>
+<h4 id="固定取值范围类型"><a href="#固定取值范围类型" class="headerlink" title="固定取值范围类型"></a>固定取值范围类型</h4><p>包括无符号整数和符号整数</p>
+<ul>
+<li>无符号整数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">u8</td>
+<td align="center">8位无符号数，占1个字节，数值范围为0~2^8 -1，通常用于流中的字节序列</td>
+</tr>
+<tr>
+<td align="center">u16</td>
+<td align="center">16位无符号数，占2个字节，范围0~2^16 -1</td>
+</tr>
+<tr>
+<td align="center">u32</td>
+<td align="center">32位无符号数，占4个字节，范围0~2^32 -1</td>
+</tr>
+<tr>
+<td align="center">u64</td>
+<td align="center">64位无符号数，占8个字节，范围0~2^64 -1</td>
+</tr>
+<tr>
+<td align="center">u128</td>
+<td align="center">128位无符号数，占16个字节，范围2^128 -1</td>
+</tr>
+</tbody></table>
+<ul>
+<li>符号整数</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">i8</td>
+<td align="center">8位有符号数，占1个字节，数值范围-2^7~2^7 -1</td>
+</tr>
+<tr>
+<td align="center">i16</td>
+<td align="center">16位有符号数，占2个字节，数值范围-2^15~2^15 -1</td>
+</tr>
+<tr>
+<td align="center">i32</td>
+<td align="center">32位有符号整数，占4个字节，数值范围-2^31~2^31 -1</td>
+</tr>
+<tr>
+<td align="center">i64</td>
+<td align="center">64位有符号整数，占8个字节，数值范围-2^63~2^63 -1</td>
+</tr>
+<tr>
+<td align="center">i128</td>
+<td align="center">128位有符号整数，占16个字节，数值范围-2^127~2^127 -1</td>
+</tr>
+</tbody></table>
+<h4 id="动态取值范围的整数"><a href="#动态取值范围的整数" class="headerlink" title="动态取值范围的整数"></a>动态取值范围的整数</h4><ul>
+<li><strong>usize</strong>，数值范围位0<del>2^32 -1或者0</del>2^64 -1，占用4个或者8个字节，取却于机器字长</li>
+<li><strong>isize</strong>，数值范围-2^31<del>2^31 -1或者-2^63</del>2^63 -1，占用4个或者8个字节，取决于机器字长</li>
+</ul>
+<h4 id="浮点类型"><a href="#浮点类型" class="headerlink" title="浮点类型"></a>浮点类型</h4><p>浮点类型都是有符号的，分为：</p>
+<ul>
+<li><strong>f32</strong>，单精度32位浮点数，至少6位有效数字，数值范围为-3.4e38~3.4e38</li>
+<li><strong>f64</strong>，双精度64位浮点数，至少15位有效数字，数值范围为-1.8e308~1.8e308</li>
+</ul>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><h3 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h3><p>Rust中的变量必须先声明后使用，创建变量使用<strong>let</strong>关键字，最常用的一种形式：</p>
+<p><code>let a : i32 = 100;</code></p>
+<p>这是Rust从函数式语言中借鉴的语法形式，称之为绑定，表明了标识符和值之间建立的一种关联关系。变量名的后面是冒号。冒号的后面是类型，因为Rust编译器具有类型推断的能力(现在比较新的静态语言好像都有这个)，所以也可以省略类型：<code>let a = 100;</code>(好像具有类型推导的语言类型都放在后面)。</p>
+<p>在Rust中声明的变量默认都是不可变的(只读的)，对不可变变量再次赋值会发生编译错误：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="number">100</span>;</span><br><span class="line">    a = <span class="number">101</span>;<span class="comment">//错误</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>要想使用可变的变量，要使用<strong>mut</strong>关键字：<code>let mut a = 100;</code>，这样就可以改变变量的值了。注意在这里这个变量是mut a，let和mut不是一个整体。</p>
+<p>还可以依次声明多个变量：<code>let (mut a,mut b) = (1,2);</code>，在这里<code>(1,2)</code>其实是一种复合数据类型——元组，而这样的方式其实被称为解构。</p>
+<p>需要注意一点，在Rust中变量必须初始化后再使用，和C语言不同，<strong>Rust中变量没有默认值</strong>。</p>
+<h3 id="变量遮蔽"><a href="#变量遮蔽" class="headerlink" title="变量遮蔽"></a>变量遮蔽</h3><p>Rust和其它大部分语言有一个很大的不同，就是在Rust中的变量遮蔽实在统一代码块下仍然可以生效。例如：</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="number">100</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"a=&#123;&#125;"</span>,a);</span><br><span class="line">    <span class="keyword">let</span> a = <span class="string">"hello"</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"a=&#123;&#125;"</span>,a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码完全没有问题，它只是重新声明了一个变量，只不过两者名字相同而已，后面的a已经遮蔽了前面的a，从第二个a定义开始，前一个变量无法在被访问，它被<strong>遮蔽</strong>了。</p>
+<h3 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h3><p>关键字<strong>type</strong>用于给同一个类型起别名</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Age</span></span> = <span class="built_in">u32</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">add</span></span>(x: Age, y: Age) -&gt; Age &#123;</span><br><span class="line">    x+y</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> a : Age = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> b : <span class="built_in">u32</span> = <span class="number">20</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"result:&#123;&#125;"</span>,add(a,b)); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类型别名可以代替复杂的类型，简化代码，提高可读性。</p>
+<h3 id="静态变量"><a href="#静态变量" class="headerlink" title="静态变量"></a>静态变量</h3><p>Rust中用<strong>static</strong>关键字声明静态变量：<code>static GLOBAL : i32 = 0;</code>，静态变量的声明周期是从程序开始到程序退出，也是不可变变量，其实就是全局变量。Rust非常注重安全，所以在静态变量(或者叫全局变量)的使用上有很多限制：</p>
+<ol>
+<li>全局变量在声明的时候必须初始化</li>
+<li>全局变量初始化时的值必须是在编译时期就可以确定的，不能是运行时才能确定的表达式，语句，函数调用</li>
+<li>使用mut修饰的静态变量在使用时必须用unsafe关键字，不论是读或者写。</li>
+</ol>
+<h3 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h3><p>Rust中用<strong>const</strong>关键字声明常量，<code>const GLOBAL: i32 = 1;</code>，因为是常量，所以不允许用mut修饰常量，常量的初始化要求也与全局变量类似，不能是运行时期确定的值或表达式，常量与全局变量最大的不同在于编译器并不一定会常量分配内存空间，常量也没有let语句的模式匹配功能。</p>
+<h3 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h3><p>在写字面量的时候可以在后面加上类型，并且加类型的写法有两种，还有二进制，流进制，八进制的写法。<strong>在Rust中所有的数字字面量都可以任意地添加下划线方便阅读</strong>，例如：0x_FF_FF，32_11_u32等等。</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">static</span> YEAR: <span class="built_in">u32</span> = <span class="number">42</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,YEAR);</span><br><span class="line">    <span class="keyword">let</span> num = <span class="number">1_i32</span>;<span class="comment">//数字字面值的另一种写法</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,num);</span><br><span class="line">    <span class="keyword">let</span> num = <span class="number">32u64</span>;<span class="comment">//也是数字字面值的另一种写法</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,num);</span><br><span class="line">    <span class="keyword">let</span> f = <span class="number">9.0f32</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,f);</span><br><span class="line">    <span class="keyword">let</span> num = <span class="number">0b1101_1011</span>;<span class="comment">//二进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,num);</span><br><span class="line">    <span class="keyword">let</span> num = <span class="number">0o16</span>;<span class="comment">//八进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,num);</span><br><span class="line">    <span class="keyword">let</span> num = <span class="number">0x1A</span>;<span class="comment">//十六进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>,num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在定义字符型变量时，如果只用到了ASCII码，那么只用一个字节就够了，这样可以在字符字面量前面加上字母b就可以，例如定义字符‘a’，就可以<code>let x = b&#39;a&#39;;</code>，这样这个字符的类型就是u8。</li>
+<li>在标准库std::f64和std::f32里都提供了IEEE所需的特殊常量值</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,std::<span class="built_in">f32</span>::INFINITY);<span class="comment">//无穷大</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,std::<span class="built_in">f32</span>::NEG_INFINITY);<span class="comment">//负无穷大</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,std::<span class="built_in">f32</span>::NAN);<span class="comment">//非数值</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,std::<span class="built_in">f32</span>::MIN);<span class="comment">//最小有限值</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,std::<span class="built_in">f32</span>::MAX);<span class="comment">//最大有限值</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//结果:</span></span><br><span class="line"><span class="comment">//inf</span></span><br><span class="line"><span class="comment">//-inf</span></span><br><span class="line"><span class="comment">//NaN</span></span><br><span class="line"><span class="comment">//-340282350000000000000000000000000000000.0</span></span><br><span class="line"><span class="comment">//340282350000000000000000000000000000000.0</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>整数的默认类型是i32</p>
+</li>
+<li><p>在Rust中可以为任意类型添加方法，例如标准库中的整数求幂方法：<code>println!(&quot;{}&quot;,2_i32.pow(3));</code></p>
+</li>
+</ul>
+<h3 id="数值计算问题"><a href="#数值计算问题" class="headerlink" title="数值计算问题"></a>数值计算问题</h3><p>在整数的计算上，默认情况下，在debug模式下，编译器会检查溢出，一旦发生溢出会引发panic，当初在release模式下，不检查整数溢出，采取和C一样的自动舍弃高位的方式。</p>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p>Rust对类型转换控制的非常严格，下面这段代码编译将会报错</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> a: <span class="built_in">i32</span> = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">let</span> b: <span class="built_in">i64</span> = a;</span><br></pre></td></tr></table></figure>
+
+<p>i32不能直接转化成i64，这在很多的语言里很正常(隐式转化)，但是在Rust中需要用<strong>as</strong>关键字显式转化，有时甚至需要多次转化</p>
+<p><code>let b: i64 = a as i64;</code></p>
+<p>整数和浮点数可以用as互相转换，布尔类型可以转化为整数，而整数不能够转化为布尔类型</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> a: <span class="built_in">i32</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">let</span> b: <span class="built_in">i64</span> = a <span class="keyword">as</span> <span class="built_in">i64</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"b=&#123;&#125;"</span>,b);</span><br><span class="line">    <span class="keyword">let</span> f: <span class="built_in">f64</span> = a <span class="keyword">as</span> <span class="built_in">f64</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"f=&#123;&#125;"</span>,f);</span><br><span class="line">    <span class="keyword">let</span> num: <span class="built_in">i64</span> = f <span class="keyword">as</span> <span class="built_in">i64</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"num=&#123;&#125;"</span>,num);</span><br><span class="line">    <span class="keyword">let</span> c: <span class="built_in">char</span> = <span class="string">'A'</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"c=&#123;&#125;"</span>,c);</span><br><span class="line">    <span class="keyword">let</span> c: <span class="built_in">i32</span> = c <span class="keyword">as</span> <span class="built_in">i32</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"c=&#123;&#125;"</span>,c);</span><br><span class="line">    <span class="keyword">let</span> b: <span class="built_in">bool</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"b=&#123;&#125;"</span>,b);</span><br><span class="line">    <span class="keyword">let</span> b = b <span class="keyword">as</span> <span class="built_in">i32</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"b=&#123;&#125;"</span>,b);</span><br><span class="line">    <span class="keyword">let</span> b: <span class="built_in">bool</span> = <span class="literal">false</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"b=&#123;&#125;"</span>,b);</span><br><span class="line">    <span class="keyword">let</span> b = b <span class="keyword">as</span> <span class="built_in">u8</span>;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"b=&#123;&#125;"</span>,b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//b=1</span></span><br><span class="line"><span class="comment">//f=1</span></span><br><span class="line"><span class="comment">//num=1</span></span><br><span class="line"><span class="comment">//c=A</span></span><br><span class="line"><span class="comment">//c=65</span></span><br><span class="line"><span class="comment">//b=true</span></span><br><span class="line"><span class="comment">//b=1</span></span><br><span class="line"><span class="comment">//b=false</span></span><br><span class="line"><span class="comment">//b=0</span></span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust初探</title>
     <url>/2020/02/22/Rust%E5%88%9D%E6%8E%A2/</url>
     <content><![CDATA[<h1 id="Rust初探"><a href="#Rust初探" class="headerlink" title="Rust初探"></a>Rust初探</h1><h2 id="初识Rust"><a href="#初识Rust" class="headerlink" title="初识Rust"></a>初识Rust</h2><p>Rust是由Mozilla推出的编程语言，最初听说Rust编程语言使因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？</p>
