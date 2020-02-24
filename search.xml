@@ -70,8 +70,8 @@
 </tr>
 </tbody></table>
 <h4 id="动态取值范围的整数"><a href="#动态取值范围的整数" class="headerlink" title="动态取值范围的整数"></a>动态取值范围的整数</h4><ul>
-<li><strong>usize</strong>，数值范围位0<del>2<sup>32</sup> -1或者0</del>2<sup>64</sup> -1，占用4个或者8个字节，取却于机器字长</li>
-<li><strong>isize</strong>，数值范围-2<sup>31</sup><del>2<sup>31</sup> -1或者-2<sup>63</sup></del>2<sup>63</sup> -1，占用4个或者8个字节，取决于机器字长</li>
+<li><strong>usize</strong>，数值范围位0 ~ 2<sup>32</sup> -1或者0 ~ 2<sup>64</sup> -1，占用4个或者8个字节，取却于机器字长</li>
+<li><strong>isize</strong>，数值范围-2<sup>31</sup> ~ 2<sup>31</sup> -1或者-2<sup>63</sup> ~ 2<sup>63</sup> -1，占用4个或者8个字节，取决于机器字长</li>
 </ul>
 <h4 id="浮点类型"><a href="#浮点类型" class="headerlink" title="浮点类型"></a>浮点类型</h4><p>浮点类型都是有符号的，分为：</p>
 <ul>
