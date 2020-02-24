@@ -19,23 +19,23 @@
 </thead>
 <tbody><tr>
 <td align="center">u8</td>
-<td align="center">8位无符号数，占1个字节，数值范围为0~2^8 -1，通常用于流中的字节序列</td>
+<td align="center">8位无符号数，占1个字节，数值范围为0~2<sup>8</sup> -1，通常用于流中的字节序列</td>
 </tr>
 <tr>
 <td align="center">u16</td>
-<td align="center">16位无符号数，占2个字节，范围0~2^16 -1</td>
+<td align="center">16位无符号数，占2个字节，范围0~2<sup>16</sup> -1</td>
 </tr>
 <tr>
 <td align="center">u32</td>
-<td align="center">32位无符号数，占4个字节，范围0~2^32 -1</td>
+<td align="center">32位无符号数，占4个字节，范围0~2<sup>32</sup> -1</td>
 </tr>
 <tr>
 <td align="center">u64</td>
-<td align="center">64位无符号数，占8个字节，范围0~2^64 -1</td>
+<td align="center">64位无符号数，占8个字节，范围0~2<sup>64</sup> -1</td>
 </tr>
 <tr>
 <td align="center">u128</td>
-<td align="center">128位无符号数，占16个字节，范围2^128 -1</td>
+<td align="center">128位无符号数，占16个字节，范围2<sup>128</sup> -1</td>
 </tr>
 </tbody></table>
 <ul>
@@ -50,28 +50,28 @@
 </thead>
 <tbody><tr>
 <td align="center">i8</td>
-<td align="center">8位有符号数，占1个字节，数值范围-2^7~2^7 -1</td>
+<td align="center">8位有符号数，占1个字节，数值范围-2<sup>7</sup>~2<sup>7</sup> -1</td>
 </tr>
 <tr>
 <td align="center">i16</td>
-<td align="center">16位有符号数，占2个字节，数值范围-2^15~2^15 -1</td>
+<td align="center">16位有符号数，占2个字节，数值范围-2<sup>15</sup>~2<sup>15</sup> -1</td>
 </tr>
 <tr>
 <td align="center">i32</td>
-<td align="center">32位有符号整数，占4个字节，数值范围-2^31~2^31 -1</td>
+<td align="center">32位有符号整数，占4个字节，数值范围-2<sup>31</sup>~2<sup>31</sup> -1</td>
 </tr>
 <tr>
 <td align="center">i64</td>
-<td align="center">64位有符号整数，占8个字节，数值范围-2^63~2^63 -1</td>
+<td align="center">64位有符号整数，占8个字节，数值范围-2<sup>63</sup>~2<sup>63</sup> -1</td>
 </tr>
 <tr>
 <td align="center">i128</td>
-<td align="center">128位有符号整数，占16个字节，数值范围-2^127~2^127 -1</td>
+<td align="center">128位有符号整数，占16个字节，数值范围-2<sup>127</sup>~2<sup>127</sup> -1</td>
 </tr>
 </tbody></table>
 <h4 id="动态取值范围的整数"><a href="#动态取值范围的整数" class="headerlink" title="动态取值范围的整数"></a>动态取值范围的整数</h4><ul>
-<li><strong>usize</strong>，数值范围位0<del>2^32 -1或者0</del>2^64 -1，占用4个或者8个字节，取却于机器字长</li>
-<li><strong>isize</strong>，数值范围-2^31<del>2^31 -1或者-2^63</del>2^63 -1，占用4个或者8个字节，取决于机器字长</li>
+<li><strong>usize</strong>，数值范围位0<del>2<sup>32</sup> -1或者0</del>2<sup>64</sup> -1，占用4个或者8个字节，取却于机器字长</li>
+<li><strong>isize</strong>，数值范围-2<sup>31</sup><del>2<sup>31</sup> -1或者-2<sup>63</sup></del>2<sup>63</sup> -1，占用4个或者8个字节，取决于机器字长</li>
 </ul>
 <h4 id="浮点类型"><a href="#浮点类型" class="headerlink" title="浮点类型"></a>浮点类型</h4><p>浮点类型都是有符号的，分为：</p>
 <ul>
@@ -134,9 +134,9 @@
   <entry>
     <title>Rust初探</title>
     <url>/2020/02/22/Rust%E5%88%9D%E6%8E%A2/</url>
-    <content><![CDATA[<h1 id="Rust初探"><a href="#Rust初探" class="headerlink" title="Rust初探"></a>Rust初探</h1><h2 id="初识Rust"><a href="#初识Rust" class="headerlink" title="初识Rust"></a>初识Rust</h2><p>Rust是由Mozilla推出的编程语言，最初听说Rust编程语言使因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？</p>
+    <content><![CDATA[<h1 id="Rust初探"><a href="#Rust初探" class="headerlink" title="Rust初探"></a>Rust初探</h1><h2 id="初识Rust"><a href="#初识Rust" class="headerlink" title="初识Rust"></a>初识Rust</h2><p>Rust是由Mozilla推出的编程语言，最初听说Rust编程语言是因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？</p>
 <p>在Rust的官网首页上，就描述了Rust的三个特点：高性能，可靠，高效率。而其他资料关于Rust的描述为：无GC，内存安全，线程安全，混合多种编程范式，强类型的静态的系统级语言。从其描述上看，的确有要替代C++的语言”该有的样子“。</p>
-<p>系统级编程时相对于应用级编程而言，一般来说，系统级编程意味着更接近底层，为上层的应用软件提供支持，系统级编程语言一般具有以下特点：</p>
+<p>系统级编程是相对于应用级编程而言，一般来说，系统级编程意味着更接近底层，为上层的应用软件提供支持，系统级编程语言一般具有以下特点：</p>
 <ol>
 <li>可以在资源非常受限的环境下执行；</li>
 <li>运行时开销很小，非常高效；</li>
