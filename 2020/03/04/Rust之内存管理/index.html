@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-loading-bar.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/linux.ico?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.4" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.0.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="Rust," />
+
+
+<meta name="description" content="Rust之内存管理程序的运行离不开内存，而不同的语言对于内存管理有着不同的方式。C和C++采用了手动管理内存，由程序员手动调用malloc和free等函数显式管理内存；而其他的大多数语言都采用了自动管理内存-GC，无需开发者手动申请或者释放内存。手动管理内存的优点在于性能，但是由于是人直接操作内存，会带来安全问题。而自动管理内存一般不会造成内存安全问题，但是因为GC的”世界暂停”会导致性能问题。人">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust之内存管理">
+<meta property="og:url" content="https://coderpathfinder.github.io/2020/03/04/Rust%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="pathfinder">
+<meta property="og:description" content="Rust之内存管理程序的运行离不开内存，而不同的语言对于内存管理有着不同的方式。C和C++采用了手动管理内存，由程序员手动调用malloc和free等函数显式管理内存；而其他的大多数语言都采用了自动管理内存-GC，无需开发者手动申请或者释放内存。手动管理内存的优点在于性能，但是由于是人直接操作内存，会带来安全问题。而自动管理内存一般不会造成内存安全问题，但是因为GC的”世界暂停”会导致性能问题。人">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-03T16:08:06.000Z">
+<meta property="article:modified_time" content="2020-03-03T16:10:04.939Z">
+<meta property="article:author" content="xsd">
+<meta property="article:tag" content="Rust">
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+  <link rel="canonical" href="https://coderpathfinder.github.io/2020/03/04/Rust之内存管理/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+  <title>Rust之内存管理 | pathfinder</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+  
+  
+<script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+<a href="https://github.com/coderpathfinder" target="_blank" class="github-corner" aria-label="View source on GitHub">
+	<svg width="80" height="80" viewBox="0 0 250 250" style="fill:#130d01; color:#5fe412; position: absolute; top: 0; border: 0; right: 0; aria-hidden="true">
+		<path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+		<path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+		<path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+	</svg>
+</a>
+<style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pathfinder</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">work work~</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://coderpathfinder.github.io/2020/03/04/Rust%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xsd">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pathfinder">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Rust之内存管理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-04T00:08:06+08:00">2020-03-04</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon"
+            >
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">30k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">22 mins.</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Rust之内存管理"><a href="#Rust之内存管理" class="headerlink" title="Rust之内存管理"></a>Rust之内存管理</h1><p>程序的运行离不开内存，而不同的语言对于内存管理有着不同的方式。C和C++采用了手动管理内存，由程序员手动调用malloc和free等函数显式管理内存；而其他的大多数语言都采用了自动管理内存-GC，无需开发者手动申请或者释放内存。手动管理内存的优点在于性能，但是由于是人直接操作内存，会带来安全问题。而自动管理内存一般不会造成内存安全问题，但是因为GC的”世界暂停”会导致性能问题。人们常常会根据实际情况的需要采取不同的语言进行开发。而Rust是一门没有GC的语言，但是确实内存安全且高效的语言。</p>
+<h2 id="内存管理基础"><a href="#内存管理基础" class="headerlink" title="内存管理基础"></a>内存管理基础</h2><p>程序在运行时所占用内存的虚拟地址空间被分为好几个区域，这些区域被称为<strong>段</strong>。常见的段有：</p>
+<ul>
+<li>代码段，用于存放编译后的机器码，一般是只读的。</li>
+<li>bss段，用于存放未初始化的全局变量和静态变量。</li>
+<li>数据段，用于存放有初始化的全局变量和静态变量。</li>
+<li>栈段，也叫堆栈，用于存放函数调用所要维护的信息，如函数参数，局部变量，函数调用的上下文等。</li>
+<li>堆，存放动态分配内存的区域。</li>
+</ul>
+<h3 id="变量和函数"><a href="#变量和函数" class="headerlink" title="变量和函数"></a>变量和函数</h3><p>变量分为两种：全局变量和局部变量。全局变量分为常量变量和静态变量，局部变量是指在函数中定义的变量。局部变量会默认被分配到栈上。用const定义的是常量，需显式指定类型，没有固定的地址，生命周期是全局的，会被为编译器在编译期间内联，编译器会对其进行类型检查，所以比宏定义的常量更加安全。静态变量用static定义，也需要显式指定类型，声明周期也是全局的，但是会和程序代码一起被存储到静态存储区。字符串字面量就是静态变量。</p>
+<h3 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h3><p>指针(Pointer)，一个保存有另一个对象的内存空间地址的对象。”segmentation fault”，段错误，对没有权限的内存做一些操作会造成段错误。段错误一般就是由于指针使用不当引发的。关于这类错误，一般由它引发的程序崩溃的地方都不是第一现场，所以这类错误非常难以解决。使用下列指针会引发问题：</p>
+<ul>
+<li><p>空指针</p>
+<p>对空指针解引用会引发错误</p>
+</li>
+<li><p>野指针</p>
+<p>野指针是指未经过初始化的指针，其指向的值是以前遗留下来的数据，会引发bug</p>
+</li>
+<li><p>悬空指针</p>
+<p>指针指向的地址空间已经被释放，这块地址空间已经不属于这个指针，这个指针继续指向这块地址空间，就是悬空指针</p>
+</li>
+</ul>
+<p>等等还有其他的一些情况。</p>
+<p>像C那样的指针在Rust中被称为原生指针，形如<code>*const T</code>和<code>*mut T</code>，使用这样的指针是有安全风险的，所以使用它们需要在unsafe代码块中进行，不受Rust编译器的安全检查。引用是一种非空指针，因为它只能由具体的数据对象得来，形如：<code>&amp; T</code>和<code>&amp; mut T</code>，原生指针和引用之间可以通过as操作符互相转换。还有一种指针叫做智能指针，是从C++中引入的。</p>
+<h4 id="智能指针"><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h4><p>智能指针实际上一种结构体，对指针进行了一层封装，实现了Deref和Drop两个特质，Deref提供了解引用的功能，Drop提供了自动析构的能力。Deref是对解引用操作符<code>*</code>的重载，在函数执行完毕，栈帧释放，函数其中的智能指针就会自动执行Drop，做一些清理工作，并不一定就是释放堆内存，还有可能是其他，比如关闭资源等操作。智能指针是基于<strong>RAII</strong>机制实现的，意思是资源获取即初始化。RAII机制是使用构造函数来初始化资源，使用析构函数回收资源。RAII与GC最大的不同是将资源交给堆内存中的指针对象本身去管理，一旦对象生命周期完结，自动调用析构函数回收资源；而GC是第三方来回收垃圾，非常被动。在Rust中，没有构造函数，但是可以自己实现，而Drop就是析构函数。</p>
+<ul>
+<li>实现Drop特质</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::ops::<span class="built_in">Drop</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span></span>(<span class="built_in">i32</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="built_in">Drop</span> <span class="keyword">for</span> S &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">drop</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"drop, &#123;&#125;"</span>, <span class="keyword">self</span>.<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> x1 = S(<span class="number">1</span>);</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> x2 = S(<span class="number">2</span>);</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"x2 : &#123;:?&#125;"</span>, x2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"x1 : &#123;:?&#125;"</span>, x1);</span><br><span class="line">    <span class="comment">//println!("x2 : &#123;:?&#125;", x2);x2已被销毁，不再存在</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//x2 : S(2)</span></span><br><span class="line"><span class="comment">//drop, 2</span></span><br><span class="line"><span class="comment">//x1 : S(1)</span></span><br><span class="line"><span class="comment">//drop, 1</span></span><br></pre></td></tr></table></figure>
+
+<p>从结果看出在超出变量作用域之前，会调用drop函数。对于值传递的类型没有析构函数，变量遮蔽时，变量仍然会在其生命周期内存在，并不会因为变量遮蔽而提前析构。</p>
+<p>需要注意的是，不允许手动调用智能指针对象的drop函数，如要想手动析构一个对象，需要调用std::men::drop函数将要释放的指针作为参数传入这个drop函数。</p>
+<h5 id="Box指针"><a href="#Box指针" class="headerlink" title="Box指针"></a>Box指针</h5><p><code>Box&lt;T&gt;</code>就是一个智能指针，可以将一个类型的值装箱，例如本来数组1是i32，值类型，默认被分配到栈中，将其用Box装箱后，值就会在堆内存中分配可以通过解引用获取其值，当函数退出，堆内存就会被自动释放。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> box1 = <span class="built_in">Box</span>::new(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">#[derive(Debug)]</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">P</span></span> &#123;</span><br><span class="line">        x: <span class="built_in">i32</span>,</span><br><span class="line">        y: <span class="built_in">i32</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> bp = <span class="built_in">Box</span>::new(P&#123;x:<span class="number">1</span>,y:-<span class="number">2</span>&#125;);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, *box1);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, *bp);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//2</span></span><br><span class="line"><span class="comment">//P &#123; x: 1, y: -2 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Box&lt;T&gt;</code>指针是一个用于有所有权的指针堆其赋值执行的永远是move(不仅是引用传递，而且还会交出原变量的所有权)，还有一种可以供多种变量引用的智能指针<code>Rc&lt;T&gt;</code>，引用计数，它会记录下指向同一块内存空间的指针的数量，而且其数据是不可变的。<code>RefCell&lt;T&gt;</code>是其可变版本。</p>
+<h2 id="所有权系统"><a href="#所有权系统" class="headerlink" title="所有权系统"></a>所有权系统</h2><p>Box指针是一个拥有所有权的指针，那么什么是所有权？在Rust中，变量对其管理的内存空间具有所有权，并且每一个值都必定有一个唯一的控制者，只有这个控制者才对值代表的内存空间拥有控制权。很多编程语言都把数据类型分为值类型和引用类型，值类型一般是在栈中存储，而引用类型因为更为复杂，所以会将数据存储在堆中，在栈中值保留其在堆中的地址，也就是指针。在Rust叫做值语义和引用语义更为精准。值语义就是复制之后两个数据对象的存储空间是相互独立的，彼此互不影响。引用语义指的是赋值之后，相当于数据对象多了一个别名，操作其中一个，另一个也会改变。一个数据对象拥有数个管理者，这回带来很多安全问题，所以Rust引入了所有权机制。</p>
+<p>值语义的类型在复制的时候是按位复制，Rust通过Copy这个trait标记类型是否是按位复制，也就是是否是值语义的类型。引用语义的类型，例如Box指针是一个拥有所有权的指针，是不能够实现Copy特质的。通过Copy特质来区分值语义和引用语义，所以赋值操作也分为复制语义和移动语义。</p>
+<p>具有移动语义的类型在复制时会出现所有权的转移。一个值的所有权被转移给另外一个变量绑定的过程叫做所有权转移。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="meta">#[derive(Debug)]</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">S</span></span>(<span class="built_in">i32</span>);</span><br><span class="line">    <span class="keyword">let</span> x1 = <span class="built_in">Box</span>::new(S(<span class="number">1</span>));</span><br><span class="line">    <span class="keyword">let</span> x2 = x1;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x1);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//编译出错,因为变量x1对数据的所有权已经转移给了x2，所以之后x1不能再使用</span></span><br><span class="line">error[E0382]: borrow of moved value: `x1`</span><br><span class="line"> --&gt; boxtest2.rs:<span class="number">6</span>:<span class="number">22</span></span><br><span class="line">  |</span><br><span class="line"><span class="number">4</span> |     <span class="keyword">let</span> x1 = <span class="built_in">Box</span>::new(S(<span class="number">1</span>));</span><br><span class="line">  |         -- move occurs because `x1` has type `std::boxed::Box&lt;main::S&gt;`, which does not implement the `Copy` trait</span><br><span class="line"><span class="number">5</span> |     <span class="keyword">let</span> x2 = x1;</span><br><span class="line">  |              -- value moved here</span><br><span class="line"><span class="number">6</span> |     <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x1);</span><br><span class="line">  |                      ^^ value borrowed here after <span class="keyword">move</span></span><br><span class="line"></span><br><span class="line">error: aborting due to previous error</span><br></pre></td></tr></table></figure>
+
+<p>所有权的权限：</p>
+<ol>
+<li>控制资源(不仅仅是内存)的释放</li>
+<li>出借所有权，包括不可变的和可变的</li>
+<li>转移所有权</li>
+</ol>
+<p>结构体和枚举体默认是<strong>移动语义</strong>的，但是可以为其实现Copy和Clone特质变成<strong>复制语义</strong>。而元组默认是复制语义的，但是如果元组的成员存在移动语义的，那么元组将会变成移动语义。</p>
+<p>字符串字面量是复制语义的，而字符串(“对象”)则是移动语义的</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="string">"xsd"</span>;</span><br><span class="line">    <span class="keyword">let</span> b = a;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125; , &#123;&#125;"</span>, a,b);<span class="comment">//可以打印出来，a和b是两个2独立的变量</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> a1 = <span class="string">"xsd"</span>.to_string();<span class="comment">//报错，a1的所有权已经能够被转移到b1上，a1无法再使用</span></span><br><span class="line">    <span class="keyword">let</span> b1 = a1;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125; , &#123;&#125;"</span>, a1,b1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="引用与借用"><a href="#引用与借用" class="headerlink" title="引用与借用"></a>引用与借用</h3><p>引用是一种指针，但与指针不同的是，指针只是单纯的是内存地址，而引用是内存地址的”别名”，使用时要收到编译器的安全检查。引用分为不可变引用&amp;T和可变引用&amp;mut T，引用表示其对所致的那块内存空间没有所有权，所以引用又叫借用。引用在离开其作用域时会的归还其借用。</p>
+<p>当发生借用时，所有者会收到如下限制：</p>
+<ul>
+<li>在不可变借用期间，所有者不能更改资源，并且所有者不能再进行可变借用</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Person</span></span> &#123;</span><br><span class="line">    name: &amp;<span class="symbol">'static</span> <span class="built_in">str</span>,</span><br><span class="line">    age: <span class="built_in">i32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> x = Person&#123;name:<span class="string">"xsd"</span>,age:<span class="number">11</span>&#125;;</span><br><span class="line">    <span class="keyword">let</span> x1 = &amp;x;</span><br><span class="line">    <span class="comment">//let mut x2 = &amp;mut x;错误，在发生不可变借用之后，不可以再进行可变借用</span></span><br><span class="line">    <span class="comment">//x.age = 9;错误，不可变借用之后所有者不能更改资源</span></span><br><span class="line">    <span class="keyword">let</span> x2 = &amp;x;<span class="comment">//但是可以进行多次不可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x1);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>,x2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在可变借用期间，所有者不能访问资源，也不能再进行可变借用</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Person</span></span> &#123;</span><br><span class="line">    name: &amp;<span class="symbol">'static</span> <span class="built_in">str</span>,</span><br><span class="line">    age: <span class="built_in">i32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> x = Person&#123;name:<span class="string">"xsd"</span>,age:<span class="number">14</span>&#125;;</span><br><span class="line">    <span class="keyword">let</span> x1 = &amp;<span class="keyword">mut</span> x;<span class="comment">//这个地方let带不带mut都一样，因为x1就是一个可变借用</span></span><br><span class="line">    x1.name = <span class="string">"xxx"</span>;</span><br><span class="line">    <span class="keyword">let</span> x2 = &amp;x;<span class="comment">//错误，进行可变借用之后，不能再进行可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x);<span class="comment">//错误，进行可变借用之后，所有者不能再访问资源</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将上面的x2借用去掉，再将两个打印语句交换位置编译即可通过,因为打印x1之后x1再也没有被使用，所以会归还借用，则x可以访问资源</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Person</span></span> &#123;</span><br><span class="line">    name: &amp;<span class="symbol">'static</span> <span class="built_in">str</span>,</span><br><span class="line">    age: <span class="built_in">i32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> x = Person&#123;name:<span class="string">"xsd"</span>,age:<span class="number">14</span>&#125;;</span><br><span class="line">    <span class="keyword">let</span> x1 = &amp;<span class="keyword">mut</span> x;<span class="comment">//这个地方let带不带mut都一样，因为x1就是一个可变借用</span></span><br><span class="line">    x1.name = <span class="string">"xxx"</span>;</span><br><span class="line">    <span class="comment">//let x2 = &amp;x;错误，进行可变借用之后，不能再进行可变借用</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x1);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//Person &#123; name: "xsd", age: 14 &#125;</span></span><br><span class="line"><span class="comment">//Person &#123; name: "xsd", age: 14 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="借用规则"><a href="#借用规则" class="headerlink" title="借用规则"></a>借用规则</h4><ol>
+<li><p>借用的生命周期不能长于所有者的声明周期,为了防止悬垂指针的出现</p>
+</li>
+<li><p>可变借用不能有别名，即只能有一个可变借用的变量(<strong>独占</strong>)</p>
+</li>
+<li><p>不可变借用不能再次出借为可变借用,2和3理解为读写锁，同一时刻，只能拥有一把写锁</p>
+</li>
+</ol>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">foo</span></span>() -&gt; <span class="built_in">Vec</span>&lt;<span class="built_in">char</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> data = <span class="built_in">vec!</span>[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>];</span><br><span class="line">    <span class="keyword">let</span> slice = &amp;<span class="keyword">mut</span> data[..];</span><br><span class="line">    <span class="comment">//data.push('d');push如果放在这里就会报错，因为同一个作用域只能有一个可变借用</span></span><br><span class="line">    cap(slice);</span><br><span class="line">    data.push(<span class="string">'d'</span>);</span><br><span class="line">    data</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">cap</span></span>(a: &amp;<span class="keyword">mut</span> [<span class="built_in">char</span>]) &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> a &#123;</span><br><span class="line">        i.make_ascii_uppercase();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> x = foo();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, x);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//['A', 'B', 'C', 'd']</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>另外，<strong>解引用会获得其所有权</strong>，所以在函数内部，不能对外部的引用或者参数引用解引用，因为这样获得其所有权之后，当这个函数返回时，外面所有的引用全部都变成了野指针，所以编译器不允许这么做。</p>
+<h3 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h3><p>在函数的签名中带有生命周期参数，主要作用是标注返回值的生命周期，其存在这样的限制：入参的生命周期必须不短于返回值的生命周期。所以在无参函数中不能返回引用，生命周期参数主要用于解决引用跨函数传递的问题。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">str_longest</span></span>&lt;<span class="symbol">'a</span>&gt;(s1: &amp;<span class="symbol">'a</span> <span class="built_in">str</span>, s2: &amp;<span class="symbol">'a</span> <span class="built_in">str</span>) -&gt; &amp;<span class="symbol">'a</span> <span class="built_in">str</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> s1.len() &gt; s2.len() &#123;</span><br><span class="line">        s1</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        s2</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> s1 = <span class="built_in">String</span>::from(<span class="string">"Rust"</span>);</span><br><span class="line">    <span class="keyword">let</span> s1_r = &amp;s1;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> s2 = <span class="built_in">String</span>::from(<span class="string">"Go"</span>);</span><br><span class="line">        <span class="keyword">let</span> ss = str_longest(s1_r,&amp;s2);<span class="comment">//ss的生命周期小于参数'a，当ss不会变成野指针</span></span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, ss);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若是返回值没有生命周期标记，则函数退出引用就会销毁，无法赋值给变量ss，这是不被编译器允许的。</p>
+<p>当有多个不同的生命周期参数时，需要指定它们的大小</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">str_longest</span></span>&lt;<span class="symbol">'a</span>,<span class="symbol">'b</span>:<span class="symbol">'a</span>&gt;(s1: &amp;<span class="symbol">'b</span> <span class="built_in">str</span>, s2: &amp;<span class="symbol">'a</span> <span class="built_in">str</span>) -&gt; &amp;<span class="symbol">'a</span> <span class="built_in">str</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> s1.len() &gt; s2.len() &#123;</span><br><span class="line">        s1</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        s2</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> s1 = <span class="built_in">String</span>::from(<span class="string">"Rust"</span>);</span><br><span class="line">    <span class="keyword">let</span> s1_r = &amp;s1;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> s2 = <span class="built_in">String</span>::from(<span class="string">"Go"</span>);</span><br><span class="line">        <span class="keyword">let</span> ss = str_longest(s1_r,&amp;s2);</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, ss);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>&#39;b: &#39;a</code>的意思是b代表的生命周期长于a，这个例子再次说明了较长生命周期的引用可以赋值给较短生命周期的变量，而反过来不行。这样不容易出现野指针。</li>
+</ul>
+<h4 id="静态生命周期"><a href="#静态生命周期" class="headerlink" title="静态生命周期"></a>静态生命周期</h4><p><code>&#39;static</code>这样的生命周期叫做静态生命周期，这样的数据将会存活于整个程序运行期间，不会被销毁，所有的字符串字面量都是静态生命周期，类型为<code>&amp;&#39;static str</code>，下面的代码可以正确运行，说明字符串字面量是复制语义，而非移动语义。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> x = <span class="string">"xsd"</span>;</span><br><span class="line">    <span class="keyword">let</span> y = x;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;,&#123;&#125;"</span>, x,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>结构体的生命周期应短于(或等于)任何一个成员的生命周期</strong>。</li>
+</ul>
+<h4 id="省略生命周期参数"><a href="#省略生命周期参数" class="headerlink" title="省略生命周期参数"></a>省略生命周期参数</h4><p>当在一些情况下，可以省略生命周期参数：</p>
+<ul>
+<li>当函数参数只有一个参数，返回值的生命周期为参数的生命周期</li>
+<li>多个参数都省略，会被分别补上不同的生命周期参数</li>
+<li>参在多个生命周期参数的位置，但其中包括&amp;self或&amp;mut self，则返回值的生命周期是self的生命周期</li>
+</ul>
+<p>当以上都不满足时，就不能省略生命周期参数。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag"><i class="fa fa-tag" aria-hidden="true"></i> Rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/04/Rust%E4%B9%8B%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F/" rel="next" title="Rust之类型系统">
+                <i class="fa fa-chevron-left"></i> Rust之类型系统
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+  <script>
+    window._bd_share_config = {
+      "common": {
+        "bdText": "",
+        "bdMini": "1",
+        "bdMiniList": false,
+        "bdPic": ""
+      },
+      "image": {
+        "viewList": ["tsina", "douban", "sqq", "qzone", "weixin", "twi", "fbook"],
+        "viewText": "分享到：",
+        "viewSize": "16"
+      },
+      "slide": {
+        "bdImg": "5",
+        "bdPos": "left",
+        "bdTop": "100"
+      }
+    }
+  </script>
+
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.jpg"
+                alt="xsd" />
+            
+              <p class="site-author-name" itemprop="name">xsd</p>
+              <p class="site-description motion-element" itemprop="description">my blog</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/%7C%7C%20archive">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/coderpathfinder" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:pathfinder8848@163.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://pathfinder20.com/" title="另一个" target="_blank">另一个</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://space.bilibili.com/107283126" title="Bilibili" target="_blank">Bilibili</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+<div>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=280 height=86 src="//music.163.com/outchain/player?type=2&id=26377651&auto=1&height=66"></iframe>
+</div>
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rust之内存管理"><span class="nav-number">1.</span> <span class="nav-text">Rust之内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存管理基础"><span class="nav-number">1.1.</span> <span class="nav-text">内存管理基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#变量和函数"><span class="nav-number">1.1.1.</span> <span class="nav-text">变量和函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指针"><span class="nav-number">1.1.2.</span> <span class="nav-text">指针</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#智能指针"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">智能指针</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Box指针"><span class="nav-number">1.1.2.1.1.</span> <span class="nav-text">Box指针</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#所有权系统"><span class="nav-number">1.2.</span> <span class="nav-text">所有权系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引用与借用"><span class="nav-number">1.2.1.</span> <span class="nav-text">引用与借用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#借用规则"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">借用规则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期"><span class="nav-number">1.2.2.</span> <span class="nav-text">生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#静态生命周期"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">静态生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#省略生命周期参数"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">省略生命周期参数</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2049 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xsd</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总字数&#58;</span>
+    
+    <span title="站点总字数">38k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+      <span class="post-meta-item-text">站点总阅读时长&#58;</span>
+    
+    <span title="站点总阅读时长">28 mins.</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span>
+<span id="times">载入时分秒...</span> 很遗憾，记录1丢失
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("02/22/2020 12:00:00");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv" title="总访客量">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="site-pv" title="总访问量">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.4"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+  
+</body>
+</html>
