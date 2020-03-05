@@ -110,15 +110,15 @@
   <meta name="keywords" content="Rust," />
 
 
-<meta name="description" content="Rust初探初识RustRust是由Mozilla推出的编程语言，最初听说Rust编程语言是因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？ 在Rust的官网首页上，就描述了Rus">
+<meta name="description" content="Rust之错误处理和文件错误处理程序的运行过程中难免会遇见非正常情况，这些非正常情况一般分为错误(Error)和异常(Exception)。错误一般都是有环境出现问题，或者编写的代码出现语法错误等情况，程序运行发生这种情况没有什么好的处理办法，要么不做处理，要么修改源代码。而对于可能发生也可能不会发生的异常，可以采取多种手段处理。 断言Rust的类型系统使得编译器可以进行类型检查以便提现错误，而有">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Rust初探">
-<meta property="og:url" content="https://coderpathfinder.github.io/2020/02/22/Rust%E5%88%9D%E6%8E%A2/index.html">
+<meta property="og:title" content="Rust之错误处理与文件">
+<meta property="og:url" content="https://coderpathfinder.github.io/2020/03/05/Rust%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E6%96%87%E4%BB%B6/index.html">
 <meta property="og:site_name" content="pathfinder">
-<meta property="og:description" content="Rust初探初识RustRust是由Mozilla推出的编程语言，最初听说Rust编程语言是因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？ 在Rust的官网首页上，就描述了Rus">
+<meta property="og:description" content="Rust之错误处理和文件错误处理程序的运行过程中难免会遇见非正常情况，这些非正常情况一般分为错误(Error)和异常(Exception)。错误一般都是有环境出现问题，或者编写的代码出现语法错误等情况，程序运行发生这种情况没有什么好的处理办法，要么不做处理，要么修改源代码。而对于可能发生也可能不会发生的异常，可以采取多种手段处理。 断言Rust的类型系统使得编译器可以进行类型检查以便提现错误，而有">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-02-22T05:36:13.000Z">
-<meta property="article:modified_time" content="2020-02-24T04:25:34.254Z">
+<meta property="article:published_time" content="2020-03-05T12:52:12.000Z">
+<meta property="article:modified_time" content="2020-03-05T12:53:08.116Z">
 <meta property="article:author" content="xsd">
 <meta property="article:tag" content="Rust">
 <meta name="twitter:card" content="summary">
@@ -128,7 +128,7 @@
 
 
 
-  <link rel="canonical" href="https://coderpathfinder.github.io/2020/02/22/Rust初探/"/>
+  <link rel="canonical" href="https://coderpathfinder.github.io/2020/03/05/Rust之错误处理与文件/"/>
 
 
 
@@ -137,7 +137,7 @@
     sidebar: "",
   };
 </script>
-  <title>Rust初探 | pathfinder</title>
+  <title>Rust之错误处理与文件 | pathfinder</title>
   
 
 
@@ -331,7 +331,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://coderpathfinder.github.io/2020/02/22/Rust%E5%88%9D%E6%8E%A2/">
+    <link itemprop="mainEntityOfPage" href="https://coderpathfinder.github.io/2020/03/05/Rust%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E6%96%87%E4%BB%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xsd">
@@ -348,7 +348,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Rust初探</h1>
+          <h1 class="post-title" itemprop="name headline">Rust之错误处理与文件</h1>
         
 
         <div class="post-meta">
@@ -360,7 +360,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-22T13:36:13+08:00">2020-02-22</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-05T20:52:12+08:00">2020-03-05</time>
             
 
             
@@ -399,7 +399,7 @@
                 
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
-                <span title="字数统计">6.7k</span>
+                <span title="字数统计">23k</span>
               
 
               
@@ -413,7 +413,7 @@
                 
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
-                <span title="阅读时长">5 mins.</span>
+                <span title="阅读时长">16 mins.</span>
               
             </div>
           
@@ -433,34 +433,59 @@
       
 
       
-        <h1 id="Rust初探"><a href="#Rust初探" class="headerlink" title="Rust初探"></a>Rust初探</h1><h2 id="初识Rust"><a href="#初识Rust" class="headerlink" title="初识Rust"></a>初识Rust</h2><p>Rust是由Mozilla推出的编程语言，最初听说Rust编程语言是因为它连续四年获得“最受欢迎的编程语言”的称号。但是使用Rust的人并不多，并且其以学习曲线陡峭著称，那么这样看似矛盾的现象勾起了我对Rust的好奇心，所以想了解了解这门语言。听说这门语言以取代C++为目的，被称为下一个40年使用的语言，那么它到底是一门什么样的语言？</p>
-<p>在Rust的官网首页上，就描述了Rust的三个特点：高性能，可靠，高效率。而其他资料关于Rust的描述为：无GC，内存安全，线程安全，混合多种编程范式，强类型的静态的系统级语言。从其描述上看，的确有要替代C++的语言”该有的样子“。</p>
-<p>系统级编程是相对于应用级编程而言，一般来说，系统级编程意味着更接近底层，为上层的应用软件提供支持，系统级编程语言一般具有以下特点：</p>
+        <h1 id="Rust之错误处理和文件"><a href="#Rust之错误处理和文件" class="headerlink" title="Rust之错误处理和文件"></a>Rust之错误处理和文件</h1><h2 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h2><p>程序的运行过程中难免会遇见非正常情况，这些非正常情况一般分为错误(Error)和异常(Exception)。错误一般都是有环境出现问题，或者编写的代码出现语法错误等情况，程序运行发生这种情况没有什么好的处理办法，要么不做处理，要么修改源代码。而对于可能发生也可能不会发生的异常，可以采取多种手段处理。</p>
+<h3 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h3><p>Rust的类型系统使得编译器可以进行类型检查以便提现错误，而有些错误编译器并不能检查出来，需要断言来保证程序的正确运行。Rust提供了六种常用的断言，它们都是宏：</p>
 <ol>
-<li>可以在资源非常受限的环境下执行；</li>
-<li>运行时开销很小，非常高效；</li>
-<li>很小的运行库，甚至于没有；</li>
-<li>可以允许直接的内存操作。</li>
+<li><code>assert!</code>，要求参数必须是值为true的布尔表达式</li>
+<li><code>assert_eq!</code>，要求两个表达式的值相等</li>
+<li><code>assert_ne!</code>，要求两个表达式的值不能相等</li>
+<li><code>debug_assert!</code>，<code>assert!</code>的debug版本，效果一样，只能用于调试模式</li>
+<li><code>debug_assert_eq!</code>，同上</li>
+<li><code>debug_assert_ne!</code>，同上</li>
 </ol>
-<p>需要注意的是，这里的系统并不一定指的就是操作系统。近些年越来越多的出现的被称为“系统级”的编程语言(如：Go，Dlang，Nim等)，但是主流的系统级编程语言还是C和C++，而Rust显然定位与他们相同，都是编译型语言，无需runtime，没有GC等等，但是Rust于C/C++最大的不同是Rust虽然没有GC但是确是内存安全的，这可以说是Rust的最大特点。另外，在很多谈论Rust的时候都会谈到其一个重要的设计哲学：<strong>零成本抽象</strong>，这表明Rust除了安全，还追求高效率开发和性能。我们知道，相比于C/C++等偏底层的语言，一些较为”上层“的编程语言(如：Python，Ruby等)的开发效率更高，因为这些语言具有一定的抽象表达能力，但是这些语言的抽象表达能力大多都是靠牺牲性能换来的，而Rust的设计哲学之一就是零成本抽象，在拥有不逊于C++的性能的同时拥有提高开发效率和实用性的抽象能力。</p>
-<p>关于安装配置环境和其他大多数语言没什么不同，安装一些列Rust的工具链包括Rust的编译器rustc，包管理器cargo，其他一系列的工具，还有管理更新这些工具的rustup，rustc和go一样，不仅能指出错误，还能给出改正的建议，这对新手非常友好，还有着很好的交叉编译能力。需要注意的是，如果是在Windows环境下安装配置Rust开发环境，还需要下载VS，安装Visual C++工具链。并且由于网络的关系，rust的工具链可能会下载失败，需要配置镜像或者多试几次。</p>
-<h2 id="你好，世界"><a href="#你好，世界" class="headerlink" title="你好，世界"></a>你好，世界</h2><p>我们没有理由不遵循传统，从最简单的hello world开始，一开始就有两种方式，通过<code>cargo new hello_world</code>命令让cargo创建一个新项目，里面就包含有一个main.rs文件，Rust的源代码文件以<code>.rs</code>结尾，并且必需是UTF-8编码，创建了一个新的项目之后进入项目根目录下，可以用命令<code>cargo build hello_world</code>编译整个项目，也可以使用命令<code>cargo run hello_world</code>直接运行整个项目，在编译或者运行之前还可以用<code>cargo check</code>来检查项目是否可以编译，这比<code>cargo build</code>快的多。cargo作为包管理工具还可以帮我们下载依赖，当然一个简单的hello word并不需要依赖什么，所以这样做有些费事，那么就使用最原始的方式用编译器编译，然后运行。</p>
-<p>新建一个名为<code>hello.rs</code>的文件，编写代码：</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello World!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>断言内部使用了<code>panic!</code>宏，引发线程恐慌。</p>
+<h3 id="Option"><a href="#Option" class="headerlink" title="Option"></a>Option</h3><p>Option是一个枚举体，一个可选项，用来表示那些可能有值，也可能没有值的情况。每一个<code>Option&lt;T&gt;</code>类型的值要么包含一个<code>Some(T)</code>，要么包含一个<code>None</code>。在使用此类型时常配合模式匹配，因此需要考虑到值为None的情况，所以也常用于错误处理。用<code>Option&lt;Box&lt;T&gt;&gt;</code>实现可空的指针</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> op = <span class="literal">None</span>;</span><br><span class="line">    <span class="keyword">let</span> op1 = <span class="literal">Some</span>(<span class="built_in">Box</span>::new(<span class="number">100</span>));</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">is_nil</span></span>(p:<span class="built_in">Option</span>&lt;<span class="built_in">Box</span>&lt;<span class="built_in">i32</span>&gt;&gt;)&#123;</span><br><span class="line">        <span class="keyword">match</span> p &#123;</span><br><span class="line">            <span class="literal">Some</span>(x) =&gt; <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, x),</span><br><span class="line">            _ =&gt; <span class="built_in">println!</span>(<span class="string">"p is nil!"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    is_nil(op);</span><br><span class="line">    is_nil(op1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//p is nil!</span></span><br><span class="line"><span class="comment">//100</span></span><br></pre></td></tr></table></figure>
 
+<p>枚举Option的常用方法：</p>
+<ul>
+<li>is_some和is_none用于判断Option是否不为空或者为空，注意：用None给Option初始化时需要指定类型</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> op1 = <span class="literal">Some</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> op2: <span class="built_in">Option</span>&lt;<span class="built_in">i32</span>&gt; = <span class="literal">None</span>;</span><br><span class="line">    <span class="built_in">assert_eq!</span>(op1.is_some(), <span class="literal">true</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, op1.unwrap());</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, op2.is_none());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//1</span></span><br><span class="line"><span class="comment">//true</span></span><br></pre></td></tr></table></figure>
 
+<ul>
+<li>as_mut方法将<code>&amp;mut Option&lt;T&gt;</code>转换成<code>Option&lt;&amp;mut T&gt;</code></li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> op: <span class="built_in">Option</span>&lt;<span class="built_in">i32</span>&gt; = <span class="literal">Some</span>(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">match</span> op.as_mut() &#123;</span><br><span class="line">        <span class="literal">Some</span>(x) =&gt; *x += <span class="number">1</span>,</span><br><span class="line">        <span class="literal">None</span> =&gt; &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">assert!</span>(op.is_some());</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, op.unwrap());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//4</span></span><br></pre></td></tr></table></figure>
 
-<p>保存退出，在命令行中进入当前路径，使用命令<code>rustc hello.rs</code>编译的到一个同名的可执行文件，运行就可以在控制台上看到打印的<code>Hello Wolrd!</code>，到这里第一个程序就完成了。</p>
-<h2 id="标准输出"><a href="#标准输出" class="headerlink" title="标准输出"></a>标准输出</h2><p>在上面的程序中<code>println!</code>是一个宏，并不是一个函数，和C语言的<code>printf</code>函数作用类似。Rust用宏来做输出的好处是在编译时就可以对参数的个数，格式做检查，以便提早发现错误，而函数只能在运行时发现出错。这面一段代码是输出宏的一些用法：</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello, world!"</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"1,2,&#123;&#125;"</span>, <span class="number">3</span>); <span class="comment">//普通用法</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:o&#125;"</span>, <span class="number">16</span>); <span class="comment">//八进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:X&#125;"</span>, <span class="number">16</span>); <span class="comment">//十六进制，x大小写都行</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:b&#125;"</span>, <span class="number">8</span>); <span class="comment">//二进制</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:p&#125;"</span>, &amp;<span class="number">0</span>); <span class="comment">//指针</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:e&#125;"</span>, <span class="number">10000.3</span>); <span class="comment">//科学计数,e大小写都行</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, <span class="string">"test"</span>); <span class="comment">//打印debug</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:#?&#125;"</span>, (<span class="string">"test1"</span>, <span class="string">"test2"</span>)); <span class="comment">//换行打印debug</span></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"a=&#123;a&#125;,b=&#123;b&#125;"</span>, b = <span class="number">1</span>, a = <span class="number">2</span>); <span class="comment">//命名参数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Some(T)的unwrap方法会取出其中的值，但是可能会引发恐慌，但是None调用此方法则会引起恐慌，推荐使用模式匹配或者<code>unwrap_or</code>方法，此方法将会试图获取并返回Option类型的变量中的值，若为None，则返回参数默认值。<code>unwrap_or_else</code>方法与其类似，但是参数是一个闭包</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> op1 = <span class="literal">Some</span>(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">let</span> op2: <span class="built_in">Option</span>&lt;<span class="built_in">i32</span>&gt; = <span class="literal">None</span>;</span><br><span class="line">    <span class="keyword">let</span> r1 = op1.unwrap_or(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">let</span> r2 = op2.unwrap_or(<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"r1=&#123;&#125;  r2=&#123;&#125;"</span>, r1,r2);</span><br><span class="line">    <span class="keyword">let</span> i = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">let</span> r1 = op1.unwrap_or_else(|| i+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> r2 = op2.unwrap_or_else(|| i*<span class="number">2</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"r1=&#123;&#125;  r2=&#123;&#125;"</span>, r1,r2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//r1=2  r2=0</span></span><br><span class="line"><span class="comment">//r1=2  r2=20</span></span><br></pre></td></tr></table></figure>
 
-<p>上面的代码的运行结果：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Hello, world!</span><br><span class="line">1,2,3</span><br><span class="line">20</span><br><span class="line">10</span><br><span class="line">1000</span><br><span class="line">0x4760c8</span><br><span class="line">1.00003e4</span><br><span class="line">&quot;test&quot;</span><br><span class="line">(</span><br><span class="line">    &quot;test1&quot;,</span><br><span class="line">    &quot;test2&quot;,</span><br><span class="line">)</span><br><span class="line">a&#x3D;2,b&#x3D;1</span><br></pre></td></tr></table></figure>
+<ul>
+<li>map，将一个Option中的值应用于一个闭包，并将返回将结果变成一个新的Option</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> op = <span class="literal">Some</span>(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> op = op.map(|x| (x <span class="keyword">as</span> <span class="built_in">f64</span>)+<span class="number">1.9</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"op = &#123;:?&#125;"</span>, op);</span><br><span class="line">    <span class="keyword">let</span> op: <span class="built_in">Option</span>&lt;<span class="built_in">i32</span>&gt; = <span class="literal">None</span>;</span><br><span class="line">    <span class="keyword">let</span> op = op.map(|x| (x <span class="keyword">as</span> <span class="built_in">f64</span>)+<span class="number">1.0</span>);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"op = &#123;:?&#125;"</span>, op);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//op = Some(2.9)</span></span><br><span class="line"><span class="comment">//op = None</span></span><br></pre></td></tr></table></figure>
 
+<h3 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h3><p><code>Result&lt;T,E&gt;</code>是专门为错误处理设计的类型，它有两个值，要么是<code>Ok&lt;T&gt;</code>，要么是<code>Err&lt;E&gt;</code>，其中Ok表示正常情况下的返回值，Err表示错误情况下的返回值，下面的例子是分别将字符串”1”和”s”转化成数字类型，分别输出了两种不同的结果：成功和异常</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> s = <span class="string">"1"</span>;</span><br><span class="line">    <span class="keyword">let</span> r = s.parse::&lt;<span class="built_in">i32</span>&gt;();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, r);</span><br><span class="line">    <span class="keyword">let</span> s = <span class="string">"s"</span>;</span><br><span class="line">    <span class="keyword">let</span> r = s.parse::&lt;<span class="built_in">i32</span>&gt;();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, r);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//Ok(1)</span></span><br><span class="line"><span class="comment">//Err(ParseIntError &#123; kind: InvalidDigit &#125;)</span></span><br></pre></td></tr></table></figure>
 
+<p><code># [must_use]</code>表示程序必须对Result中的Ok和Err情况都做处理，否则编译会出现警告。模式匹配处理Result</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[must_use]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> std::num::ParseIntError;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">ParseResult</span></span>&lt;T&gt; = <span class="built_in">Result</span>&lt;T,ParseIntError&gt;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">square</span></span>(s: &amp;<span class="built_in">str</span>) -&gt; ParseResult&lt;<span class="built_in">i32</span>&gt; &#123;</span><br><span class="line">    s.parse::&lt;<span class="built_in">i32</span>&gt;().map(|i| i.pow(<span class="number">3</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">match</span> square(<span class="string">"3"</span>) &#123;</span><br><span class="line">        <span class="literal">Ok</span>(n) =&gt; <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, n),</span><br><span class="line">        <span class="literal">Err</span>(err) =&gt; <span class="built_in">println!</span>(<span class="string">"Err: &#123;&#125; !"</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">match</span> square(<span class="string">"xsd"</span>) &#123;</span><br><span class="line">        <span class="literal">Ok</span>(n) =&gt; <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, n),</span><br><span class="line">        <span class="literal">Err</span>(err) =&gt; <span class="built_in">println!</span>(<span class="string">"Err: &#123;&#125; !"</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//27</span></span><br><span class="line"><span class="comment">//Err: invalid digit found in string !</span></span><br></pre></td></tr></table></figure>
 
-<p>Rust官网地址：<a href="https://www.rust-lang.org/" target="_blank" rel="noopener">https://www.rust-lang.org/</a></p>
-<p>Rust标准库文档地址： <a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">https://doc.rust-lang.org/std/</a></p>
+<p>还可以可以通过手动引发<code>panic</code>来应对那些处理不了的情况，相当与C++和Java的手动抛出异常。通过第三方库也可以做错误处理，如<strong>failure</strong>。</p>
+<h2 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><p>关于文件和IO的库在<code>std::io</code>和<code>std::fs</code>里，<code>DirBuilder</code>用于创建目录，其recursive决定是否递归创建，当参数为true时，路径的目录不存在时，递归创建；默认不递归创建，此时目录以存在，则create方法会报错 ，is_dir方法用于判断一个对象是否是目录。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::&#123;<span class="keyword">self</span>, DirBuilder&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> path = <span class="string">"my"</span>;</span><br><span class="line">    DirBuilder::new()</span><br><span class="line">    .recursive(<span class="literal">true</span>)</span><br><span class="line">    .create(path).unwrap();</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, fs::metadata(path).unwrap().is_dir());<span class="comment">//true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="问号运算符"><a href="#问号运算符" class="headerlink" title="问号运算符"></a>问号运算符</h3><p>读取指定路径的目录下的所有文件，这里的<strong>?</strong>号运算符表示当该处出现错误，提前返回错误，但是用到main函数里有一个问题，main函数的返回值是( )，若直接在main函数里使用问号运算符编译不会通过，就需要改变面函数的返回值类型</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() -&gt; std::io::<span class="built_in">Result</span>&lt;()&gt;&#123;</span><br><span class="line">    <span class="keyword">for</span> entry <span class="keyword">in</span> fs::read_dir(<span class="string">"my"</span>)? &#123;</span><br><span class="line">        <span class="keyword">let</span> d = entry?;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"&#123;:?&#125;"</span>, d.path());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//"my\\1.txt"</span></span><br><span class="line"><span class="comment">//"my\\test.txt"</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="文件-1"><a href="#文件-1" class="headerlink" title="文件"></a>文件</h3><p>File是系统文件的实例，当其超出作用域时会自动关闭，不需要手动关闭文件。<code>create</code>函数以只写模式打开一个文件，当文件不存在时，创建哪个文件，<code>write_all</code>写入一个[u8]的切片；open方法打开一个文件，若文件不存在，则返回一个错误，<code>read_to_string</code>方法用于将文件内容读取到一个字符串里，是<code>std::io</code>模块里的函数。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::fs::File;</span><br><span class="line"><span class="keyword">use</span> std::io::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() -&gt; std::io::<span class="built_in">Result</span>&lt;()&gt;&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> f = File::create(<span class="string">"my/new.txt"</span>)?;</span><br><span class="line">        f.write_all(<span class="string">b"Hello, World!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> f = File::open(<span class="string">"my/new.txt"</span>)?;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> contents = <span class="built_in">String</span>::new();</span><br><span class="line">    f.read_to_string(&amp;<span class="keyword">mut</span> contents)?;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, contents);</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="comment">//Hello, World!</span></span><br></pre></td></tr></table></figure>
+
+<p>还有BufWriter，BufRead，流等都在<code>std::io</code>等模块里，具体详情见官方文档：</p>
+<p><a href="https://doc.rust-lang.org/std/index.html" target="_blank" rel="noopener" title="rust docs">Rust标准库APIs</a></p>
 
       
     </div>
@@ -494,15 +519,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2020/03/04/Rust%E4%B9%8B%E5%87%BD%E6%95%B0%E4%B8%8E%E9%9B%86%E5%90%88/" rel="next" title="Rust之函数与集合">
+                <i class="fa fa-chevron-left"></i> Rust之函数与集合
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/02/23/Rust%E5%8F%98%E9%87%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/" rel="prev" title="Rust变量与基本类型">
-                Rust变量与基本类型 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -694,7 +719,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rust初探"><span class="nav-number">1.</span> <span class="nav-text">Rust初探</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初识Rust"><span class="nav-number">1.1.</span> <span class="nav-text">初识Rust</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#你好，世界"><span class="nav-number">1.2.</span> <span class="nav-text">你好，世界</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标准输出"><span class="nav-number">1.3.</span> <span class="nav-text">标准输出</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rust之错误处理和文件"><span class="nav-number">1.</span> <span class="nav-text">Rust之错误处理和文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#错误处理"><span class="nav-number">1.1.</span> <span class="nav-text">错误处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断言"><span class="nav-number">1.1.1.</span> <span class="nav-text">断言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Option"><span class="nav-number">1.1.2.</span> <span class="nav-text">Option</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Result"><span class="nav-number">1.1.3.</span> <span class="nav-text">Result</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件"><span class="nav-number">1.2.</span> <span class="nav-text">文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#目录"><span class="nav-number">1.2.1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问号运算符"><span class="nav-number">1.2.2.</span> <span class="nav-text">问号运算符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件-1"><span class="nav-number">1.2.3.</span> <span class="nav-text">文件</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
