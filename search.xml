@@ -1,6 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Rust之贪吃蛇</title>
+    <url>/2020/03/07/Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87/</url>
+    <content><![CDATA[<h1 id="Rust之贪吃蛇"><a href="#Rust之贪吃蛇" class="headerlink" title="Rust之贪吃蛇"></a>Rust之贪吃蛇</h1><p>在逛GitHub上Rust的开源项目，看到一个贪吃蛇的小游戏，想着模仿它也做一个。废话不多说，开始动手。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>写一个小游戏肯定是需要一个类似Pygame那样的关于游戏的游戏第三方引擎和库，而在Rust有一个叫Piston的，它的网址是<a href="https://www.piston.rs/" target="_blank" rel="noopener">https://www.piston.rs/</a>，他GitHub主页上介绍所需要自己的电脑上有一些关于C的库，所以按照其在GitHub上的入门教程先测试一个自己电脑上的环境是否能够是其正常工作，顺便学习一下在Rust中怎么导入第三方依赖。</p>
+<p>在官网首页点击入门到其在GitHub的仓库，里面有详细的教程，首先在你喜欢的位置用cargo创建一个新的项目，名字随意，我这里就叫snake；进入项目文件夹，编辑项目根目录下的<code>Cargo.toml</code>文件，从Piston的教程中复制内容到文件中，修改后的文件内容如下：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5Ccargotoml.PNG" alt=""></p>
+<p>然后打开<code>main.rs</code>文件，将官方提供的演示实例复制下来替换<code>main.rs</code>中cargo自动生成的hello world。教程的演示实例：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E5%85%A5%E9%97%A8%E6%BC%94%E7%A4%BA%E5%AE%9E%E4%BE%8B.PNG" alt=""></p>
+<p>好了，准备工作都做完了，运行测验一下，在当前项目位置打开命令行，输入<code>cargo build</code>编译，可能第一次时间稍慢一些，编译完后，<code>cargo run</code>运行整个项目，看到桌面出现一个窗口，里面有一个旋转的正方形，代表成功了，可以继续下面的工作了。</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E4%BA%8B%E4%BE%8B%E8%BF%90%E8%A1%8C.PNG" alt=""></p>
+<h2 id="创建窗口"><a href="#创建窗口" class="headerlink" title="创建窗口"></a>创建窗口</h2><p>环境测试工作准备好之后，接着开始创建一个窗口，打开官方的实例代码，随便找一个源代码，比如说<code>hello_world.rs</code>：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E5%AE%98%E6%96%B9%E4%BA%8B%E4%BE%8B.PNG" alt=""></p>
+<p>在其中找到他的<code>Cargo.toml</code>文件，结合前面项目的依赖把官方例子的依赖替换掉，或者新建一个项目重新开始。替换后的自己的<code>Cargo.toml</code>文件比如如下：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E7%9C%9F%E6%AD%A3%E5%BC%80%E5%A7%8B%E7%9A%84%E4%BE%9D%E8%B5%96.PNG" alt=""></p>
+<p>除了游戏的依赖，<code>find_folder</code>是关于文件的依赖，用于加载字体文件，<code>rand</code>是用于生成随机数，随机产生食物的坐标。</p>
+<p>然后在<code>main.rs</code>文件里按照官方事例写入创建窗口的代码</p>
+<figure class="highlight rust"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">crate</span> piston_window;</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">crate</span> find_folder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> piston_window::*;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> window: PistonWindow = WindowSettings::new(</span><br><span class="line">            <span class="string">"snake"</span>,</span><br><span class="line">            [<span class="number">500</span>, <span class="number">500</span>]</span><br><span class="line">        )</span><br><span class="line">        .exit_on_esc(<span class="literal">true</span>)</span><br><span class="line">        .build()</span><br><span class="line">        .unwrap();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">let</span> <span class="literal">Some</span>(event) = window.next() &#123;</span><br><span class="line">            <span class="comment">// println!("...");</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行，出现了一个黑色的框：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%96%B0%E5%BB%BA%E7%AA%97%E5%8F%A3.PNG" alt=""></p>
+<h2 id="调制色彩"><a href="#调制色彩" class="headerlink" title="调制色彩"></a>调制色彩</h2><p>Piston采用的是RGBA的颜色参数，是一个有4个f32类型的范围在0到1.0的数组，就像css里颜色的百分之表示一样，在网上找一个RGBA的调色板选择颜色：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5CRGBA%E8%B0%83%E8%89%B2.PNG" alt=""></p>
+<p>我采用黑色背景，分数字体颜色为白色，蛇的颜色是绿色，食物的颜色为红色，失败时覆盖上半透明蓝色，所以保存颜色常量的文件内容如下：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5Ccolors.PNG" alt=""></p>
+<h2 id="编写坐标和方向"><a href="#编写坐标和方向" class="headerlink" title="编写坐标和方向"></a>编写坐标和方向</h2><p>先创建两个结构体，一个是坐标结构体，有x和y两个属性：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E5%9D%90%E6%A0%87%E7%BB%93%E6%9E%84%E4%BD%93.PNG" alt=""></p>
+<p>另一个是方向枚举体，有四个方向，和一个求自身反方向的方法，这个方法是判断当前蛇运动的方向和按键的放向是否相反，因为蛇不能够后退运动：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%96%B9%E5%90%91%E6%9E%9A%E4%B8%BE.PNG" alt=""></p>
+<h2 id="绘制"><a href="#绘制" class="headerlink" title="绘制"></a>绘制</h2><p>因为是游戏里蛇和食物都是由像素块组成的，所以需要绘制方块的函数：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E7%BB%98%E5%88%B6%E6%96%B9%E5%9D%97.PNG" alt=""></p>
+<p>最重要的就是绘制蛇头上的眼睛，因为需要蛇的眼睛在蛇头上的相对位置随着蛇运动的方向的改变而变化</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E7%BB%98%E5%88%B6%E7%9C%BC%E7%9D%9B.png" alt=""></p>
+<p>在游戏结束时，给全屏上色，区分游戏结束：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9D%9F.png" alt=""></p>
+<h2 id="编写游戏"><a href="#编写游戏" class="headerlink" title="编写游戏"></a>编写游戏</h2><p>用<code>rand</code>库里的<code>thread_rng()</code>函数创建坐标，用于蛇开始的位置和每个食物的位置，因为没有考虑的特殊情况，所以此游戏运行时，新食物出现的位置有可能被蛇覆盖：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E9%9A%8F%E6%9C%BA%E5%9D%90%E6%A0%87.png" alt=""></p>
+<p>游戏结构体，包含游戏的所有元素，包括：尺寸，结束状态，暂停状态，分数，蛇，食物，刷新时间等</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9E%84%E4%BD%93.png" alt=""></p>
+<p>其方法有构造函数， 绘制食物和蛇的方法，更新分数， 刷新方法，按键方法等：</p>
+<ul>
+<li>构造函数</li>
+</ul>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9E%84%E4%BD%93%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95.png" alt=""></p>
+<ul>
+<li>绘制和更新分数的方法</li>
+</ul>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9E%84%E4%BD%93%E7%BB%98%E5%88%B6%E6%96%B9%E6%B3%95.png" alt=""></p>
+<ul>
+<li>刷新方法</li>
+</ul>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%B7%E6%96%B0%E6%96%B9%E6%B3%95.png" alt=""></p>
+<ul>
+<li>按键方法</li>
+</ul>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%89%E9%94%AE%E6%96%B9%E6%B3%95.png" alt=""></p>
+<h2 id="主循环"><a href="#主循环" class="headerlink" title="主循环"></a>主循环</h2><p>最后编写游戏主循环：</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5C%E6%B8%B8%E6%88%8F%E4%B8%BB%E5%BE%AA%E7%8E%AF.png" alt=""></p>
+<p><code>cargo build</code>编译，<code>cargo run</code>运行</p>
+<img src="Rust之贪吃蛇\运行截图.PNG" style="zoom:60%;" />
+
+<img src="Rust之贪吃蛇\游戏结束截图.PNG" style="zoom:60%;" />
+
+<h2 id="把项目推到GitHub远程仓库"><a href="#把项目推到GitHub远程仓库" class="headerlink" title="把项目推到GitHub远程仓库"></a>把项目推到GitHub远程仓库</h2><ol>
+<li><p>进入项目文件夹根目录下，打开git bash，执行<code>git init</code>命令，把这个文件夹变成git可以管理的仓库</p>
+</li>
+<li><p>执行<code>git add .</code>把全部文件添加到仓库</p>
+</li>
+<li><p><code>git commit -m &quot;first commit&quot;</code>把文件提交到仓库</p>
+</li>
+<li><p><code>git remote add origin https://github.com/xxx/xxx.git</code>关联远程仓库</p>
+</li>
+<li><p>执行<code>git push -u origin master</code>把所有内容推送到远程仓库</p>
+</li>
+<li><p>出现错误</p>
+<p><img src="Rust%E4%B9%8B%E8%B4%AA%E5%90%83%E8%9B%87%5Cgiterror.PNG" alt=""></p>
+</li>
+<li><p><code>git pull origin master --allow-unrelated-histories</code>，把远程仓库和本地同步，消除差异</p>
+</li>
+<li><p>重新add和commit，然后再次执行<code>git push -u origin master</code>，成功</p>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Rust</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Rust之错误处理与文件</title>
     <url>/2020/03/05/Rust%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E6%96%87%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="Rust之错误处理和文件"><a href="#Rust之错误处理和文件" class="headerlink" title="Rust之错误处理和文件"></a>Rust之错误处理和文件</h1><h2 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h2><p>程序的运行过程中难免会遇见非正常情况，这些非正常情况一般分为错误(Error)和异常(Exception)。错误一般都是有环境出现问题，或者编写的代码出现语法错误等情况，程序运行发生这种情况没有什么好的处理办法，要么不做处理，要么修改源代码。而对于可能发生也可能不会发生的异常，可以采取多种手段处理。</p>
